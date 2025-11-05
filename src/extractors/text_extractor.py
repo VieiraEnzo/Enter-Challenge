@@ -61,9 +61,9 @@ def apply_heuristic_rules(
                 if pattern.fullmatch(word.strip()):
                     matches.append(word.strip())
             
-            if matches:
-                # Choose a random match if multiple are found
-                heuristic_results[field_name] = random.choice(matches)
+            if len(matches) == 1:
+                # Choose the match
+                heuristic_results[field_name] = matches[0]
             else:
                 # Rule failed to find matches, send to LLM
                 fields_for_llm[field_name] = description

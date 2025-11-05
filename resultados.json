@@ -2,14 +2,14 @@
   {
     "pdf_path": "oab_1.pdf",
     "label": "carteira_oab",
-    "duration": 10.813676595687866,
+    "duration": 14.889167308807373,
     "extracted_data": {
-      "nome": "JOANA D'ARC",
       "inscricao": "101943",
+      "nome": "JOANA D'ARC",
       "seccional": "PR",
-      "subsecao": "CONSELHO SECCIONAL - PARANÁ",
+      "subsecao": null,
       "categoria": "SUPLEMENTAR",
-      "endereco_profissional": "AVENIDA PAULISTA, Nº 2300 andar Pilotis, Bela Vista SÃO PAULO - SP 01310300",
+      "endereco_profissional": "AVENIDA PAULISTA, Nº 2300 andar Pilotis, Bela Vista, SÃO PAULO - SP, 01310300",
       "telefone_profissional": null,
       "situacao": "SITUAÇÃO REGULAR"
     }
@@ -17,11 +17,11 @@
   {
     "pdf_path": "oab_2.pdf",
     "label": "carteira_oab",
-    "duration": 11.432159662246704,
+    "duration": 12.130716323852539,
     "extracted_data": {
       "inscricao": "101943",
-      "seccional": "SP",
       "nome": "LUIS FILIPE ARAUJO AMARAL",
+      "seccional": "PR",
       "subsecao": null,
       "categoria": "SUPLEMENTAR",
       "endereco_profissional": "AVENIDA PAULISTA, Nº 2300 andar Pilotis, Bela Vista, SÃO PAULO - SP, 01310300",
@@ -31,7 +31,7 @@
   {
     "pdf_path": "oab_3.pdf",
     "label": "carteira_oab",
-    "duration": 7.40677547454834,
+    "duration": 7.4992921352386475,
     "extracted_data": {
       "inscricao": "101943",
       "seccional": "PR",
@@ -45,7 +45,7 @@
   {
     "pdf_path": "tela_sistema_1.pdf",
     "label": "tela_sistema",
-    "duration": 13.087204933166504,
+    "duration": 14.360472440719604,
     "extracted_data": {
       "data_base": "05/09/2025",
       "data_verncimento": "12/10/2025",
@@ -59,23 +59,23 @@
   {
     "pdf_path": "tela_sistema_2.pdf",
     "label": "tela_sistema",
-    "duration": 6.562426805496216,
+    "duration": 8.873348712921143,
     "extracted_data": {
+      "valor_parcela": "2.372,64",
       "pesquisa_por": "CLIENTE",
       "pesquisa_tipo": "CPF",
       "sistema": "CONSIGNADO",
-      "valor_parcela": "2.372,64",
       "cidade": "Mozarlândia"
     }
   },
   {
     "pdf_path": "tela_sistema_3.pdf",
     "label": "tela_sistema",
-    "duration": 12.726809978485107,
+    "duration": 8.103942155838013,
     "extracted_data": {
       "data_referencia": "04/02/2021",
-      "selecao_de_parcelas": "vencido",
-      "total_de_parcelas": 96
+      "selecao_de_parcelas": null,
+      "total_de_parcelas": null
     }
   }
 ]

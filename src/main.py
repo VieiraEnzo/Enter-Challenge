@@ -4,9 +4,7 @@ import time
 import argparse
 import sqlite3
 from typing import Dict, Any
-
 from src.extractors.text_extractor import extract_full_text, apply_heuristic_rules
-from src.extractors.field_filter import filter_viable_fields
 from src.extractors.llm_extractor import query_llm_fallback
 from src.database.db import init_db, DB_PATH
 from src.database.learner import learn_from_llm
