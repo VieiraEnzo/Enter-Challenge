@@ -1,0 +1,81 @@
+[
+  {
+    "pdf_path": "oab_1.pdf",
+    "label": "carteira_oab",
+    "duration": 10.813676595687866,
+    "extracted_data": {
+      "nome": "JOANA D'ARC",
+      "inscricao": "101943",
+      "seccional": "PR",
+      "subsecao": "CONSELHO SECCIONAL - PARANÁ",
+      "categoria": "SUPLEMENTAR",
+      "endereco_profissional": "AVENIDA PAULISTA, Nº 2300 andar Pilotis, Bela Vista SÃO PAULO - SP 01310300",
+      "telefone_profissional": null,
+      "situacao": "SITUAÇÃO REGULAR"
+    }
+  },
+  {
+    "pdf_path": "oab_2.pdf",
+    "label": "carteira_oab",
+    "duration": 11.432159662246704,
+    "extracted_data": {
+      "inscricao": "101943",
+      "seccional": "SP",
+      "nome": "LUIS FILIPE ARAUJO AMARAL",
+      "subsecao": null,
+      "categoria": "SUPLEMENTAR",
+      "endereco_profissional": "AVENIDA PAULISTA, Nº 2300 andar Pilotis, Bela Vista, SÃO PAULO - SP, 01310300",
+      "situacao": "SITUAÇÃO REGULAR"
+    }
+  },
+  {
+    "pdf_path": "oab_3.pdf",
+    "label": "carteira_oab",
+    "duration": 7.40677547454834,
+    "extracted_data": {
+      "inscricao": "101943",
+      "seccional": "PR",
+      "nome": "SON GOKU",
+      "subsecao": "CONSELHO SECCIONAL - PARANÁ",
+      "categoria": "SUPLEMENTAR",
+      "telefone_profissional": null,
+      "situacao": "SITUAÇÃO REGULAR"
+    }
+  },
+  {
+    "pdf_path": "tela_sistema_1.pdf",
+    "label": "tela_sistema",
+    "duration": 13.087204933166504,
+    "extracted_data": {
+      "data_base": "05/09/2025",
+      "data_verncimento": "12/10/2025",
+      "quantidade_parcelas": null,
+      "produto": "CONSIGNADO",
+      "sistema": null,
+      "tipo_de_operacao": "Vencidas",
+      "tipo_de_sistema": null
+    }
+  },
+  {
+    "pdf_path": "tela_sistema_2.pdf",
+    "label": "tela_sistema",
+    "duration": 6.562426805496216,
+    "extracted_data": {
+      "pesquisa_por": "CLIENTE",
+      "pesquisa_tipo": "CPF",
+      "sistema": "CONSIGNADO",
+      "valor_parcela": "2.372,64",
+      "cidade": "Mozarlândia"
+    }
+  },
+  {
+    "pdf_path": "tela_sistema_3.pdf",
+    "label": "tela_sistema",
+    "duration": 12.726809978485107,
+    "extracted_data": {
+      "data_referencia": "04/02/2021",
+      "selecao_de_parcelas": "vencido",
+      "total_de_parcelas": 96
+    }
+  }
+]

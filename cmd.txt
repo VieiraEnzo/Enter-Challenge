@@ -1,0 +1,1 @@
+python -m src.main test/ --output resultados.json

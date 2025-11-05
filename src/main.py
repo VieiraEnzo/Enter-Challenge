@@ -1,69 +1,134 @@
 import os
 import json
+import time
 import argparse
-from src.components.pdf_processor import extract_text_from_pdf
-from src.components.llm_extractor import get_extraction_from_llm
+import sqlite3
+from typing import Dict, Any
+
+from src.extractors.text_extractor import extract_full_text, apply_heuristic_rules
+from src.extractors.field_filter import filter_viable_fields
+from src.extractors.llm_extractor import query_llm_fallback
+from src.database.db import init_db, DB_PATH
+from src.database.learner import learn_from_llm
 
 
-def process_dataset(base_directory):
+def process_dataset(base_directory: str) -> list:
     """
-    Processa um conjunto de dados a partir de um diretório que contém
-    um 'dataset.json' e uma pasta de arquivos PDF.
+    Process a dataset from a directory containing 'dataset.json' and PDF files.
+    Implements the new 9-step Regex-First pipeline.
+    
+    Args:
+        base_directory (str): Path to the directory containing dataset.json
+        
+    Returns:
+        list: List of processing results with metadata
     """
     dataset_path = os.path.join(base_directory, "dataset.json")
-
+    resultados_totais = []
+    
     try:
         with open(dataset_path, 'r', encoding='utf-8') as f:
             dataset = json.load(f)
     except FileNotFoundError:
-        print(f"Erro: 'dataset.json' não encontrado em '{base_directory}'")
+        print(f"Error: 'dataset.json' not found in '{base_directory}'")
         return
     except json.JSONDecodeError:
-        print(f"Erro: Falha ao decodificar o arquivo JSON em '{dataset_path}'")
+        print(f"Error: Failed to decode JSON file at '{dataset_path}'")
         return
 
-    for item in dataset:
-        pdf_path = item.get("pdf_path")
-        schema = item.get("extraction_schema")
-        label = item.get("label")
+    # Initialize database
+    init_db()
+    
+    # Create DB connection for the processing session
+    with sqlite3.connect(DB_PATH) as db_conn:
+        for item in dataset:
+            pdf_path = item.get("pdf_path")
+            schema = item.get("extraction_schema")
+            label = item.get("label")
 
-        full_pdf_path = os.path.join(base_directory, "files/" ,pdf_path)
-        print(f"--- Processando: {full_pdf_path} (Label: {label}) ---")
+            if not all([pdf_path, schema, label]):
+                print("Error: Dataset item missing required information.")
+                continue
 
-        try:
-            with open(full_pdf_path, "rb") as pdf_file:
-                # 1. Extrai o texto do PDF
-                pdf_text = extract_text_from_pdf(pdf_file)
-                                
-                # 2. Converte o schema (que pode ser uma string JSON) para um dict
-                # e de volta para uma string formatada para o prompt.
+            full_pdf_path = os.path.join(base_directory, "files", pdf_path)
+            print(f"\n--- Processing: {pdf_path} (Label: {label}) ---")
+
+            try:
+                # Handle string schema
                 if isinstance(schema, str):
                     schema = json.loads(schema)
-                schema_str = json.dumps(schema, indent=2, ensure_ascii=False)
 
-                # 3. Chama o LLM para extrair os dados
-                extracted_data, duration = get_extraction_from_llm(pdf_text, schema_str)
+                start_time = time.time()
+
+                # Step 3: Extract full text from PDF
+                full_text = extract_full_text(full_pdf_path)
+
+                viable_schema = schema
+
+                # Step 6: Apply heuristic regex rules
+                heuristic_results, fields_for_llm = apply_heuristic_rules(
+                    viable_schema, label, full_text, db_conn)
+                print(f"Fields extracted by regex: {len(heuristic_results)}")
+
+                # # Step 7: LLM fallback if needed
+                llm_results = {}
+                if fields_for_llm:
+                    llm_results = query_llm_fallback(fields_for_llm, full_text)
+                    print(f"Fields processed by LLM: {len(llm_results)}")
+
+                # # Step 8: Learn from successful LLM extractions
+                if llm_results:
+                    learn_from_llm(label, llm_results, db_conn)
+
+                # # Step 9: Combine results
+                final_result = {
+                    **heuristic_results,
+                    **llm_results
+                }
+
+                duration = time.time() - start_time
+                print(f"\nData extracted (in {duration:.2f}s):")
+                print(json.dumps(final_result, indent=2, ensure_ascii=False))
                 
-                if extracted_data:
-                    print(f"Dados extraídos (em {duration:.2f}s):")
-                    print(json.dumps(json.loads(extracted_data), indent=2, ensure_ascii=False))
-                else:
-                    print("Falha ao extrair dados com o LLM.")
+                # # Add metadata to result
+                result_with_meta = {
+                    "pdf_path": pdf_path,
+                    "label": label,
+                    "duration": duration,
+                    "extracted_data": final_result
+                }
+                resultados_totais.append(result_with_meta)
+                
+            except FileNotFoundError:
+                print(f"Error: PDF file not found at '{full_pdf_path}'")
+            except Exception as e:
+                print(f"Unexpected error processing file {pdf_path}: {str(e)}")
+            
+            print("-" * 40)
 
-        except FileNotFoundError:
-            print(f"Erro: Arquivo PDF não encontrado em '{full_pdf_path}'")
-        except Exception as e:
-            print(f"Erro inesperado ao processar o arquivo {pdf_path}: {e}")
-        
-        print("-" * 40)
-        print("\n")
+    return resultados_totais
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Extrai dados de PDFs com base em um dataset.json.")
     parser.add_argument("directory", type=str, help="O caminho para o diretório de teste contendo 'dataset.json' e os arquivos PDF.")
+    parser.add_argument("--output", type=str, help="Caminho para salvar o JSON com os resultados.", default="resultados.json")
     args = parser.parse_args()
 
-    if os.path.isdir(args.directory):
-        process_dataset(args.directory)
-    else:
+    if not os.path.isdir(args.directory):
         print(f"Erro: O diretório '{args.directory}' não foi encontrado.")
+        exit(1)
+
+    print("Iniciando processamento...")
+    start_time = time.time()
+    
+    resultados = process_dataset(args.directory)
+    
+    if resultados:
+        # Salva os resultados em um arquivo JSON
+        with open(args.output, 'w', encoding='utf-8') as f:
+            json.dump(resultados, f, indent=2, ensure_ascii=False)
+        print(f"\nResultados salvos em: {args.output}")
+
+    duration = time.time() - start_time
+    print(f"\nProcesso completo em: {duration:.2f}s")
+    print(f"Total de documentos processados: {len(resultados) if resultados else 0}")
