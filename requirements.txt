@@ -1,4 +1,5 @@
 openai
 pymupdf
-python-dotenvunidecode
-unidecode
+python-dotenv
+Unidecode
+flask

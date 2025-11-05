@@ -10,7 +10,7 @@ from src.database.db import init_db, DB_PATH
 from src.database.learner import learn_from_llm
 
 
-def process_dataset(base_directory: str) -> list:
+def process_dataset(base_directory: str, progress_queue=None, output_path: str = None) -> list:
     """
     Process a dataset from a directory containing 'dataset.json' and PDF files.
     Implements the new 9-step Regex-First pipeline.
@@ -39,6 +39,8 @@ def process_dataset(base_directory: str) -> list:
     
     # Create DB connection for the processing session
     with sqlite3.connect(DB_PATH) as db_conn:
+        total = len(dataset)
+        processed = 0
         for item in dataset:
             pdf_path = item.get("pdf_path")
             schema = item.get("extraction_schema")
@@ -96,13 +98,41 @@ def process_dataset(base_directory: str) -> list:
                     "extracted_data": final_result
                 }
                 resultados_totais.append(result_with_meta)
+                # push progress update if queue is provided
+                processed += 1
+                if progress_queue is not None:
+                    progress_queue.put({
+                        "type": "item",
+                        "pdf_path": pdf_path,
+                        "label": label,
+                        "duration": duration,
+                        "extracted_data": final_result,
+                        "processed": processed,
+                        "total": total
+                    })
                 
             except FileNotFoundError:
                 print(f"Error: PDF file not found at '{full_pdf_path}'")
+                if progress_queue is not None:
+                    progress_queue.put({"type": "error", "pdf_path": pdf_path, "error": "file_not_found"})
             except Exception as e:
                 print(f"Unexpected error processing file {pdf_path}: {str(e)}")
+                if progress_queue is not None:
+                    progress_queue.put({"type": "error", "pdf_path": pdf_path, "error": str(e)})
             
             print("-" * 40)
+
+    # Optionally write results to output_path
+    if output_path:
+        try:
+            with open(output_path, 'w', encoding='utf-8') as f:
+                json.dump(resultados_totais, f, indent=2, ensure_ascii=False)
+        except Exception as e:
+            print(f"Error writing output file {output_path}: {e}")
+    
+    # final progress message
+    if progress_queue is not None:
+        progress_queue.put({"type": "finished", "count": len(resultados_totais)})
 
     return resultados_totais
 

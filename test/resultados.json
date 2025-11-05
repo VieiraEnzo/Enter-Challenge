@@ -2,7 +2,7 @@
   {
     "pdf_path": "oab_1.pdf",
     "label": "carteira_oab",
-    "duration": 14.889167308807373,
+    "duration": 13.906890153884888,
     "extracted_data": {
       "inscricao": "101943",
       "nome": "JOANA D'ARC",
@@ -17,12 +17,12 @@
   {
     "pdf_path": "oab_2.pdf",
     "label": "carteira_oab",
-    "duration": 12.130716323852539,
+    "duration": 10.434075832366943,
     "extracted_data": {
       "inscricao": "101943",
       "nome": "LUIS FILIPE ARAUJO AMARAL",
       "seccional": "PR",
-      "subsecao": null,
+      "subsecao": "CONSELHO SECCIONAL - PARANÁ",
       "categoria": "SUPLEMENTAR",
       "endereco_profissional": "AVENIDA PAULISTA, Nº 2300 andar Pilotis, Bela Vista, SÃO PAULO - SP, 01310300",
       "situacao": "SITUAÇÃO REGULAR"
@@ -31,7 +31,7 @@
   {
     "pdf_path": "oab_3.pdf",
     "label": "carteira_oab",
-    "duration": 7.4992921352386475,
+    "duration": 6.280871868133545,
     "extracted_data": {
       "inscricao": "101943",
       "seccional": "PR",
@@ -45,11 +45,11 @@
   {
     "pdf_path": "tela_sistema_1.pdf",
     "label": "tela_sistema",
-    "duration": 14.360472440719604,
+    "duration": 12.917349338531494,
     "extracted_data": {
       "data_base": "05/09/2025",
       "data_verncimento": "12/10/2025",
-      "quantidade_parcelas": null,
+      "quantidade_parcelas": 0,
       "produto": "CONSIGNADO",
       "sistema": null,
       "tipo_de_operacao": "Vencidas",
@@ -59,7 +59,7 @@
   {
     "pdf_path": "tela_sistema_2.pdf",
     "label": "tela_sistema",
-    "duration": 8.873348712921143,
+    "duration": 9.368326425552368,
     "extracted_data": {
       "valor_parcela": "2.372,64",
       "pesquisa_por": "CLIENTE",
@@ -71,11 +71,11 @@
   {
     "pdf_path": "tela_sistema_3.pdf",
     "label": "tela_sistema",
-    "duration": 8.103942155838013,
+    "duration": 8.155913591384888,
     "extracted_data": {
       "data_referencia": "04/02/2021",
       "selecao_de_parcelas": null,
-      "total_de_parcelas": null
+      "total_de_parcelas": 96
     }
   }
 ]
