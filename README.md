@@ -1,1 +1,103 @@
-FIRST: When pressing the extract button, it should reset the value from processando x/y pdf's.
+# Projeto de Extração de Documentos (ENTER AI Fellowship)
+
+Este projeto implementa um pipeline de extração de dados otimizado para PDFs, capaz de aprender com as requisições para reduzir custos e aumentar a velocidade.
+
+A solução utiliza um sistema híbrido:
+* **Heurísticas (Regex):** Um banco de dados `SQLite` armazena regras de Regex aprendidas. Se uma regra existe para um campo, ela é aplicada localmente (Custo Zero).
+* **Filtro de Relevância:** O sistema pré-processa o PDF para identificar campos que são impossíveis de encontrar, marcando-os como `null` sem gastar tempo de processamento.
+* **Fallback de LLM:** Campos que não puderam ser resolvidos por heurísticas são enviados (em lote e com contexto otimizado) para o `gpt-5-mini`.
+* **Aprendizado (Learner):** As respostas da LLM são analisadas para identificar novos padrões de Regex, que são salvos no banco de dados para uso futuro.
+
+O projeto pode ser executado como uma Aplicação Web (via Flask) ou como um Script de Linha de Comando (CLI).
+
+## Como Rodar:
+
+Este projeto foi construído para rodar com Python 3.11+ e um ambiente virtual (`venv`).
+
+### 1. Preparação do Ambiente
+
+1.  **Clone o Repositório**
+    ```bash
+    git clone [https://github.com/VieiraEnzo/Enter-Challenge](https://github.com/VieiraEnzo/Enter-Challenge)
+    cd Enter-Challenge
+    ```
+
+2.  **Crie e Ative o Ambiente Virtual**
+    ```bash
+    # No macOS/Linux
+    python3 -m venv venv
+    source venv/bin/activate
+    
+    # No Windows
+    python -m venv venv
+    .\venv\Scripts\activate
+    ```
+
+3.  **Instale as Dependências**
+    O projeto usa `python-dotenv` para gerenciar chaves de API.
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+### 2. Configuração da API Key
+
+1.  **Crie seu arquivo `.env`**
+    (Se houver um `.env.example`, você pode copiá-lo. Senão, crie um novo.)
+    ```bash
+    # No macOS/Linux (copia o exemplo)
+    cp .env.example .env
+    
+    # No Windows (copia o exemplo)
+    copy .env.example .env
+    
+    # Se o .env.example não existir, apenas crie o .env
+    ```
+
+2.  **Adicione sua Chave**
+    Abra o arquivo `.env` (que você acabou de criar) em um editor de texto e adicione sua chave:
+    ```
+    OPENAI_API_KEY="sk-sua-chave-secreta-aqui"
+    ```
+
+### 3. Executando a Aplicação
+
+Você pode rodar este projeto de duas formas:
+
+---
+
+#### Opção A: Aplicação Web Interativa (Recomendado)
+
+Esta opção inicia um servidor local que permite processar arquivos através de uma interface gráfica e acompanhar o progresso em tempo real.
+
+1.  **Inicie o Servidor Flask**
+    (Certifique-se de que seu `venv` está ativado)
+    ```bash
+    python src/webapp.py
+    ```
+
+2.  **Acesse a Aplicação**
+    Abra seu navegador e acesse:
+    **`http://localhost:5000`**
+
+3.  **Inicie o Processamento**
+    * No campo de texto, insira o **caminho absoluto** para a pasta que contém os arquivos PDF que você deseja processar.
+    * Exemplo (Linux/macOS): `/home/usuario/documentos/pdfs_para_teste`
+    * Exemplo (Windows): `C:\Usuarios\SeuNome\Documentos\pdfs_para_teste`
+    * Clique em "Executar" e acompanhe o progresso.
+    * Baixe o arquivo resultados.json utilizando o botão
+
+---
+
+#### Opção B: Script de Linha de Comando (CLI)
+
+Esta opção é ideal para testes em lote ou para integração com outros scripts. Ela processará todos os arquivos em um diretório de entrada e salvará um único `resultados.json`.
+
+1.  **Execute o Módulo `main`**
+    (Certifique-se de que seu `venv` está ativado)
+    ```bash
+    python -m src.main test/ --output resultados.json
+    ```
+
+    * `python -m src.main`: Executa o módulo principal do projeto.
+    * `test/`: O diretório de **entrada** (substitua pelo seu, se necessário). Este projeto já inclui a pasta `test/` com os arquivos de exemplo.
+    * `--output resultados.json`: O arquivo de **saída** onde o JSON final será salvo.
