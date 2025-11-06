@@ -18,14 +18,14 @@ Este projeto foi construído para rodar com Python 3.11+ e um ambiente virtual (
 
 1.  **Clone o Repositório**
     ```bash
-    git clone [https://github.com/VieiraEnzo/Enter-Challenge](https://github.com/VieiraEnzo/Enter-Challenge)
+    git clone https://github.com/VieiraEnzo/Enter-Challenge
     cd Enter-Challenge
     ```
 
 2.  **Crie e Ative o Ambiente Virtual**
     ```bash
     # No macOS/Linux
-    python3 -m venv venv
+    python -m venv venv
     source venv/bin/activate
     
     # No Windows
@@ -42,7 +42,6 @@ Este projeto foi construído para rodar com Python 3.11+ e um ambiente virtual (
 ### 2. Configuração da API Key
 
 1.  **Crie seu arquivo `.env`**
-    (Se houver um `.env.example`, você pode copiá-lo. Senão, crie um novo.)
     ```bash
     # No macOS/Linux (copia o exemplo)
     cp .env.example .env
@@ -50,7 +49,6 @@ Este projeto foi construído para rodar com Python 3.11+ e um ambiente virtual (
     # No Windows (copia o exemplo)
     copy .env.example .env
     
-    # Se o .env.example não existir, apenas crie o .env
     ```
 
 2.  **Adicione sua Chave**
@@ -72,7 +70,7 @@ Esta opção inicia um servidor local que permite processar arquivos através de
 1.  **Inicie o Servidor Flask**
     (Certifique-se de que seu `venv` está ativado)
     ```bash
-    python src/webapp.py
+    python3 -m src.webapp --output resultados.json
     ```
 
 2.  **Acesse a Aplicação**
@@ -83,8 +81,8 @@ Esta opção inicia um servidor local que permite processar arquivos através de
     * No campo de texto, insira o **caminho absoluto** para a pasta que contém os arquivos PDF que você deseja processar.
     * Exemplo (Linux/macOS): `/home/usuario/documentos/pdfs_para_teste`
     * Exemplo (Windows): `C:\Usuarios\SeuNome\Documentos\pdfs_para_teste`
-    * Clique em "Executar" e acompanhe o progresso.
-    * Baixe o arquivo resultados.json utilizando o botão
+    * Clique em "Extrair" e acompanhe o progresso.
+    * Baixe o arquivo resultados.json utilizando o botão "Baixar resultados"
 
 ---
 
@@ -98,6 +96,5 @@ Esta opção é ideal para testes em lote ou para integração com outros script
     python -m src.main test/ --output resultados.json
     ```
 
-    * `python -m src.main`: Executa o módulo principal do projeto.
     * `test/`: O diretório de **entrada** (substitua pelo seu, se necessário). Este projeto já inclui a pasta `test/` com os arquivos de exemplo.
     * `--output resultados.json`: O arquivo de **saída** onde o JSON final será salvo.
