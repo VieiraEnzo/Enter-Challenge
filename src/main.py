@@ -38,7 +38,8 @@ def process_dataset(base_directory: str, progress_queue=None, output_path: str =
     init_db()
     
     # Create DB connection for the processing session
-    with sqlite3.connect(DB_PATH) as db_conn:
+    # check_same_thread=False allows this connection to be used safely in Flask threads
+    with sqlite3.connect(DB_PATH, check_same_thread=False) as db_conn:
         total = len(dataset)
         processed = 0
         for item in dataset:
@@ -130,7 +131,7 @@ def process_dataset(base_directory: str, progress_queue=None, output_path: str =
         except Exception as e:
             print(f"Error writing output file {output_path}: {e}")
     
-    # final progress message
+    # final progress message - send this so the client knows processing is complete
     if progress_queue is not None:
         progress_queue.put({"type": "finished", "count": len(resultados_totais)})
 

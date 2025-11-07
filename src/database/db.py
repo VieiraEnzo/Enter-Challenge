@@ -1,11 +1,18 @@
 import sqlite3
+import os
 from typing import Optional
 
-DB_PATH = "template_cache.db"
+# Use absolute path to avoid issues with different working directories (Docker, Flask, CLI)
+DB_DIR = os.path.dirname(os.path.abspath(__file__))
+DB_PATH = os.path.join(DB_DIR, "template_cache.db")
+
+# Ensure the directory exists
+os.makedirs(DB_DIR, exist_ok=True)
 
 def init_db():
     """Initialize the database and create tables if they don't exist."""
-    with sqlite3.connect(DB_PATH) as conn:
+    # check_same_thread=False allows SQLite to be used from different threads
+    with sqlite3.connect(DB_PATH, check_same_thread=False) as conn:
         cursor = conn.cursor()
         # Table for current regex rules
         cursor.execute("""
@@ -134,5 +141,5 @@ def is_field_conflicting(conn, label: str, field_name: str) -> bool:
     """, (label, field_name))
     return cursor.fetchone() is not None
 
-# Initialize DB on first import
-init_db()
+# Don't initialize at import time - let process_dataset handle it
+# This avoids race conditions when multiple threads/processes start up

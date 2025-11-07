@@ -60,7 +60,8 @@
     <div id="logs"></div>
 
     <script>
-      let es = null;
+      let pollInterval = null;
+      let lastCount = 0;
       let processedCount = 0;
       let totalCount = 0;
 
@@ -74,18 +75,23 @@
         const dir = document.getElementById('directory').value.trim();
         if (!dir) return alert('Informe um diretório');
         
-  // Reset counters and display
-  processedCount = 0;
-  totalCount = 0;
-  document.getElementById('status').innerText = 'Iniciando...';
-  document.getElementById('logs').innerText = '';
-  // Reset visible progress UI immediately
-  document.getElementById('progress').style.display = 'none';
-  document.getElementById('progress-count').textContent = '0';
-  document.getElementById('progress-total').textContent = '0';
-  const bar = document.querySelector('.progress-bar');
-  if (bar) bar.style.width = '0%';
-  document.getElementById('download').disabled = true;
+        // Reset counters and display
+        processedCount = 0;
+        totalCount = 0;
+        lastCount = 0;
+        document.getElementById('status').innerText = 'Iniciando...';
+        document.getElementById('logs').innerText = '';
+        document.getElementById('progress').style.display = 'none';
+        document.getElementById('progress-count').textContent = '0';
+        document.getElementById('progress-total').textContent = '0';
+        const bar = document.querySelector('.progress-bar');
+        if (bar) bar.style.width = '0%';
+        document.getElementById('download').disabled = true;
+        
+        // Clear any existing polling
+        if (pollInterval) {
+          clearInterval(pollInterval);
+        }
         
         // start session
         const resp = await fetch('/start', { method: 'POST', body: new URLSearchParams({ directory: dir }) });
@@ -98,75 +104,69 @@
         document.getElementById('status').innerText = 'Processando...';
         document.getElementById('progress').style.display = 'block';
 
-        // open event stream
-        if (es) es.close();
-        es = new EventSource('/stream');
-        
-        es.onerror = (error) => {
-          console.error('EventSource error:', error);
-        };
-        
-        es.onopen = () => {
-          console.log('EventSource connection opened');
-        };
-        
-        es.onmessage = (ev) => {
+        // Start polling for results
+        pollInterval = setInterval(async () => {
           try {
-            console.log('Raw event data:', ev.data); // Debug log
+            const pollResp = await fetch('/poll');
+            if (!pollResp.ok) return;
             
-            // Server now sends valid JSON. Parse directly.
-            console.log('Raw JSON from server:', ev.data);
-            const obj = JSON.parse(ev.data);
-            console.log('Parsed object:', obj); // Debug log
+            const pollData = await pollResp.json();
             
-            const logs = document.getElementById('logs');
-            if (!obj) return;
+            // Process any new results
+            const results = pollData.results || [];
             
-            if (obj.type === 'item') {
-              console.log('Processing item:', obj); // Debug log
+            for (let i = lastCount; i < results.length; i++) {
+              const obj = results[i];
+              const logs = document.getElementById('logs');
               
-              // Update progress
-              if (obj.processed && obj.total) {
-                updateProgress(obj.processed, obj.total);
-              }
-
-              // Create new div for this PDF
-              const div = document.createElement('div');
-              div.className = 'item';
-              let content = `PDF: "${obj.pdf_path}"\n`;
-              
-              // Process extracted data
-              if (obj.extracted_data) {
-                // Sort the keys for consistent display order
-                const sortedKeys = Object.keys(obj.extracted_data).sort();
-                for (const key of sortedKeys) {
-                  const value = obj.extracted_data[key];
-                  content += `${key}: ${value === null ? 'null' : value}\n`;
+              if (obj.type === 'item') {
+                // Update progress
+                if (obj.processed && obj.total) {
+                  updateProgress(obj.processed, obj.total);
                 }
-              } else {
-                console.log('No extracted_data found in:', obj); // Debug log
+
+                // Create new div for this PDF
+                const div = document.createElement('div');
+                div.className = 'item';
+                let content = `PDF: "${obj.pdf_path}"\n`;
+                
+                // Process extracted data
+                if (obj.extracted_data) {
+                  // Sort the keys for consistent display order
+                  const sortedKeys = Object.keys(obj.extracted_data).sort();
+                  for (const key of sortedKeys) {
+                    const value = obj.extracted_data[key];
+                    content += `${key}: ${value === null ? 'null' : value}\n`;
+                  }
+                }
+                
+                div.innerText = content;
+                logs.appendChild(div);
+                
+              } else if (obj.type === 'error') {
+                // Display error
+                const div = document.createElement('div');
+                div.className = 'item error';
+                div.innerText = `Error processing ${obj.pdf_path}: ${obj.error}\n`;
+                logs.appendChild(div);
               }
-              
-              div.innerText = content;
-              logs.appendChild(div);
-
-            } else if (obj.type === 'error') {
-              const div = document.createElement('div');
-              div.className = 'item error';
-              div.innerText = `Error processing ${obj.pdf_path}: ${obj.error}\n`;
-              logs.appendChild(div);
-
-            } else if (obj.type === 'finished' || obj.type === 'done') {
+            }
+            lastCount = results.length;
+            
+            // Check if done
+            if (pollData.done) {
+              clearInterval(pollInterval);
               document.getElementById('status').innerText = 'Concluído';
-              if (obj.count) {
-                updateProgress(obj.count, obj.count);
-              }
               document.getElementById('download').disabled = false;
+              
+              if (pollData.error) {
+                alert('Erro: ' + pollData.error);
+              }
             }
           } catch (err) {
-            console.error('Error parsing:', err, ev.data);
+            // Silently handle polling errors
           }
-        }
+        }, 500); // Poll every 500ms
       }
 
       function updateProgress(processed, total) {
