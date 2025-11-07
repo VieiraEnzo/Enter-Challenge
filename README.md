@@ -98,3 +98,18 @@ Esta opção é ideal para testes em lote ou para integração com outros script
 
     * `test/`: O diretório de **entrada** (substitua pelo seu, se necessário). Este projeto já inclui a pasta `test/` com os arquivos de exemplo.
     * `--output resultados.json`: O arquivo de **saída** onde o JSON final será salvo.
+
+
+### 4. Trabalhos futuros
+
+Durante o desafio, explorei uma abordagem de heurísticas baseadas na localização que, embora eu não tenha tido tempo de implementar de forma satisfatória, acredito ter grande potencial para identificar campos de maneira ainda mais eficaz.
+
+A ideia central é esta: após identificar um campo "âncora" (por exemplo, com a LLM), podemos inferir a posição de outros campos com base em sua posição relativa.
+
+Para layouts fixos, a lógica é simples. No entanto, como expandir isso para layouts variantes? A minha hipótese é que um layout variante raramente é caótico; ele é, na verdade, um conjunto de blocos de layout menores que são internamente fixos.
+
+Por exemplo, o bloco "Endereço" pode mudar de lugar na fatura, mas dentro desse bloco, o campo "CEP" e "Estado" sempre terão a mesma disposição e distância relativa entre si.
+
+Minha ideia era implementar um sistema que calculasse a distância de uma palavra-candidata para suas vizinhas, criando um "vetor de características espaciais". Ao analisar PDFs anteriores, o sistema poderia aprender esses padrões e prever a identidade de um campo com base nesse "fingerprint" espacial.
+
+No entanto, devido ao tempo limitado e à necessidade de entregar um produto funcional com a acurácia exigida, optei por focar na arquitetura atual, que foi mais rápida de implementa, validar e debugar.
